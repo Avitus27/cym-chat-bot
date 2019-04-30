@@ -18,12 +18,11 @@ def verify():
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
 
-    return "Hello world", 200
+    return "ok", 200
 
 
 @app.route('/', methods=['POST'])
 def webhook():
-
     # endpoint for processing incoming messaging events
 
     data = request.get_json()
@@ -39,8 +38,7 @@ def webhook():
                     sender_id = messaging_event["sender"]["id"]        # the facebook ID of the person sending you the message
                     recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
                     message_text = messaging_event["message"]["text"]  # the message's text
-
-                    send_message(sender_id, "roger that!")
+                    send_message(sender_id, "gwan the lads!")
 
                 if messaging_event.get("delivery"):  # delivery confirmation
                     pass
@@ -59,7 +57,7 @@ def send_message(recipient_id, message_text):
     log("sending message to {recipient}: {text}".format(recipient=recipient_id, text=message_text))
 
     params = {
-        "access_token": os.environ["PAGE_ACCESS_TOKEN"]
+        "access_token": os.environ["ACCESS_TOKEN"]
     }
     headers = {
         "Content-Type": "application/json"
@@ -84,11 +82,14 @@ def log(msg, *args, **kwargs):  # simple wrapper for logging to stdout on heroku
             msg = json.dumps(msg)
         else:
             msg = str(msg).format(*args, **kwargs)
-        print("{}: {}".format(datetime.now(), msg))
+        print("{}: {}".format(datetime.now(), msg), file=sys.stderr)
     except UnicodeEncodeError:
         pass  # squash logging errors in case of non-ascii text
     sys.stdout.flush()
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.before_first_request
+def set_environment_variables():
+    with open("secret.json") as fp:
+        config = json.load(fp)
+    os.environ["VERIFY_TOKEN"] = config["verify_token"]
+    os.environ["ACCESS_TOKEN"] = config["access_token"]
+    log(f"Config loaded access:{os.environ['ACCESS_TOKEN']} verify:{os.environ['VERIFY_TOKEN']}")

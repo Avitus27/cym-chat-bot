@@ -5,8 +5,6 @@ WORKDIR /app
 
 ENV FLASK_APP=app.py
 
-EXPOSE 5000
-
 RUN pip install -r requirements.txt
 
-CMD flask run
+CMD flask run --host 0.0.0.0
