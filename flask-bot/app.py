@@ -13,8 +13,10 @@ app = Flask(__name__)
 def verify():
     # when the endpoint is registered as a webhook, it must echo back
     # the 'hub.challenge' value it receives in the query arguments
-    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
-        if not request.args.get("hub.verify_token") == os.environ["VERIFY_TOKEN"]:
+    if request.args.get("hub.mode") == "subscribe" and request.args.get(
+            "hub.challenge"):
+        if not request.args.get(
+                "hub.verify_token") == os.environ["VERIFY_TOKEN"]:
             return "Verification token mismatch", 403
         return request.args["hub.challenge"], 200
 
@@ -35,9 +37,13 @@ def webhook():
 
                 if messaging_event.get("message"):  # someone sent us a message
 
-                    sender_id = messaging_event["sender"]["id"]        # the facebook ID of the person sending you the message
-                    recipient_id = messaging_event["recipient"]["id"]  # the recipient's ID, which should be your page's facebook ID
-                    message_text = messaging_event["message"]["text"]  # the message's text
+                    # the facebook ID of the person sending you the message
+                    sender_id = messaging_event["sender"]["id"]
+                    # the recipient's ID, which should be your page's facebook
+                    # ID
+                    recipient_id = messaging_event["recipient"]["id"]
+                    # the message's text
+                    message_text = messaging_event["message"]["text"]
                     send_message(sender_id, "gwan the lads!")
 
                 if messaging_event.get("delivery"):  # delivery confirmation
@@ -46,7 +52,8 @@ def webhook():
                 if messaging_event.get("optin"):  # optin confirmation
                     pass
 
-                if messaging_event.get("postback"):  # user clicked/tapped "postback" button in earlier message
+                if messaging_event.get(
+                        "postback"):  # user clicked/tapped "postback" button in earlier message
                     pass
 
     return "ok", 200
@@ -54,7 +61,8 @@ def webhook():
 
 def send_message(recipient_id, message_text):
 
-    log("sending message to {recipient}: {text}".format(recipient=recipient_id, text=message_text))
+    log("sending message to {recipient}: {text}".format(
+        recipient=recipient_id, text=message_text))
 
     params = {
         "access_token": os.environ["ACCESS_TOKEN"]
@@ -70,7 +78,11 @@ def send_message(recipient_id, message_text):
             "text": message_text
         }
     })
-    r = requests.post("https://graph.facebook.com/v2.6/me/messages", params=params, headers=headers, data=data)
+    r = requests.post(
+        "https://graph.facebook.com/v2.6/me/messages",
+        params=params,
+        headers=headers,
+        data=data)
     if r.status_code != 200:
         log(r.status_code)
         log(r.text)
@@ -86,6 +98,8 @@ def log(msg, *args, **kwargs):  # simple wrapper for logging to stdout on heroku
     except UnicodeEncodeError:
         pass  # squash logging errors in case of non-ascii text
     sys.stdout.flush()
+
+
 @app.before_first_request
 def set_environment_variables():
     with open("secret.json") as fp:
