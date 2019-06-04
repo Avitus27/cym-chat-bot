@@ -1,5 +1,7 @@
 # CYM Bot
 
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2873/badge)](https://bestpractices.coreinfrastructure.org/projects/2873)
+
 ### Requirements
 - Docker only
 
