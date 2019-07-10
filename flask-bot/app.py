@@ -102,8 +102,13 @@ def log(msg, *args, **kwargs):  # simple wrapper for logging to stdout on heroku
 
 @app.before_first_request
 def set_environment_variables():
-    with open("secret.json") as fp:
-        config = json.load(fp)
-    os.environ["VERIFY_TOKEN"] = config["verify_token"]
-    os.environ["ACCESS_TOKEN"] = config["access_token"]
-    log(f"Config loaded access:{os.environ['ACCESS_TOKEN']} verify:{os.environ['VERIFY_TOKEN']}")
+    try:
+        with open("secret.json") as fp:
+            config = json.load(fp)
+        os.environ["VERIFY_TOKEN"] = config["verify_token"]
+        os.environ["ACCESS_TOKEN"] = config["access_token"]
+        log(f"Config loaded access:{os.environ['ACCESS_TOKEN']} verify:{os.environ['VERIFY_TOKEN']}")
+    except FileNotFoundError as err:
+        log("secret.json not found. Is it in the right directory, with app.py? Setting verify and access to blank")
+        os.environ["VERIFY_TOKEN"] = ""
+        os.environ["ACCESS_TOKEN"] = ""
