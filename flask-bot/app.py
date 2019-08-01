@@ -7,10 +7,23 @@ import requests
 from flask import Flask, request
 
 app = Flask(__name__)
+bot = None
 
 
 @app.route('/', methods=['GET'])
 def verify():
+    """Verify that the token received is correct.
+
+    When the endpoint is registered as a webhook, it must echo back
+    the`hub.challengs` value it receives in the query arguments
+
+    Decorators:
+        app.route
+
+    Returns:
+        HTTP Response -- 200 OK when no expected args provided or the challenge
+                         is correct, 403 when token mismatch
+    """
     # when the endpoint is registered as a webhook, it must echo back
     # the 'hub.challenge' value it receives in the query arguments
     if request.args.get("hub.mode") == "subscribe" and request.args.get(
@@ -25,10 +38,17 @@ def verify():
 
 @app.route('/', methods=['POST'])
 def webhook():
-    # endpoint for processing incoming messaging events
+    """Endpoint for processing incoming messaging events.
 
+    Processes incoming messages
+
+    Decorators:
+        app.route
+    """
     data = request.get_json()
-    log(data)  # you may not want to log every incoming message in production, but it's good for testing
+    log(data)
+    # you may not want to log every incoming message in production
+    # but it's good for testing
 
     if data["object"] == "page":
 
@@ -53,7 +73,8 @@ def webhook():
                     pass
 
                 if messaging_event.get(
-                        "postback"):  # user clicked/tapped "postback" button in earlier message
+                        "postback"):
+                        # user clicked/tapped "postback" button in earlier message
                     pass
 
     return "ok", 200
@@ -102,13 +123,24 @@ def log(msg, *args, **kwargs):  # simple wrapper for logging to stdout on heroku
 
 @app.before_first_request
 def set_environment_variables():
+    """Set the environment variables.
+
+    Reads the verify and access tokens from the secret.json file
+
+    Decorators:
+        app.before_first_request
+    """
     try:
         with open("secret.json") as fp:
             config = json.load(fp)
         os.environ["VERIFY_TOKEN"] = config["verify_token"]
         os.environ["ACCESS_TOKEN"] = config["access_token"]
-        log(f"Config loaded access:{os.environ['ACCESS_TOKEN']} verify:{os.environ['VERIFY_TOKEN']}")
+        log("Config loaded access:{} verify:{}".format(
+            os.environ['ACCESS_TOKEN'],
+            os.environ['VERIFY_TOKEN']))
     except FileNotFoundError as err:
-        log("secret.json not found. Is it in the right directory, with app.py? Setting verify and access to blank")
+        log("secret.json not found. Is it in the right directory, with app.py?"
+            "Setting verify and access to blank")
         os.environ["VERIFY_TOKEN"] = ""
         os.environ["ACCESS_TOKEN"] = ""
+    bot = Bot(os.environ["ACCESS_TOKEN"])
