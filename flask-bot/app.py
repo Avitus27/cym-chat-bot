@@ -50,8 +50,7 @@ def webhook():
     # you may not want to log every incoming message in production
     # but it's good for testing
 
-    if data["object"] == "page":
-
+    if data and data.get('object') and data.get('object') == "page":
         for entry in data["entry"]:
             for messaging_event in entry["messaging"]:
 
