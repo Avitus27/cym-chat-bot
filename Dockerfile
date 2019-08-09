@@ -1,9 +1,9 @@
 FROM python:3.7-rc-slim
 
-COPY flask-bot /app
+ADD flask-bot /app
 WORKDIR /app
 
-ENV FLASK_APP=app.py
+ENV FLASK_APP="flask_bot/app.py"
 
 RUN pip install -r requirements.txt
 

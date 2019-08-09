@@ -8,4 +8,5 @@ itsdangerous
 requests
 pylint
 pymessenger
+pytest
 
