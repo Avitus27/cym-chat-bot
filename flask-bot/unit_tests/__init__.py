@@ -1,5 +1,5 @@
 import sys
-import os
+import pathlib
 
-sys.path.append(os.path.realpath(os.path.dirname(__file__) + "/.."))
+sys.path.append(str(pathlib.Path.cwd()))
 
