@@ -138,7 +138,7 @@ def set_environment_variables():
             os.environ['ACCESS_TOKEN'],
             os.environ['VERIFY_TOKEN']))
     except FileNotFoundError as err:
-        log("secret.json not found. Is it in the right directory, with app.py?"
+        log("secret.json not found. Is it in the right directory, with __init__.py?"
             "Setting verify and access to blank")
         os.environ["VERIFY_TOKEN"] = ""
         os.environ["ACCESS_TOKEN"] = ""
